@@ -61,7 +61,6 @@ python main.py --lit --model path/to/your/model
 - Python 3.7+
 - PyTorch
 - Transformers
-- SHAP
 - Captum
 - Matplotlib
 
