@@ -47,12 +47,14 @@
 
   Каждая модель умеет классифицровать по определённым меткам, их необходимо прописать в коде перед запуском скрипта:
    ```python
+   src/scripts.py
    valid_labels = ["about", "........ добавьте свои"]
    ```
   - в этой строке укажите свои метки
 
   Также, вы можете определить цвета для меток:
    ```python
+   src/scripts.py
    color_map = {
     'humor': Fore.CYAN,
     'своя_метка': Fore.YELLOW,
@@ -83,16 +85,33 @@
 
 ## 🖥️ Использование
 
+![image](https://github.com/user-attachments/assets/2ce6f296-a6f5-414a-aae6-6100adc2184a)
+
 ### Интерактивный режим
 
 ```bash
 python main.py --interactive --model path/to/your/model
 ```
+![image](https://github.com/user-attachments/assets/6a4e400c-50e6-4838-a64c-229f341ee7b5)
+
+
+### Проверки безопасности
+
+```bash
+python main.py --interactive --model path/to/your/model --check_security
+```
+![image](https://github.com/user-attachments/assets/71dfa293-10aa-4ac6-8584-2fab72498943)
 
 ### Режим LIT
 
 ```bash
 python main.py --lit --model path/to/your/model
+```
+
+### Выбор устройства
+
+```bash
+python main.py --device [gpu,cpu]
 ```
 
 ## 📋 Требования
@@ -102,6 +121,7 @@ python main.py --lit --model path/to/your/model
 - Transformers
 - Captum
 - Matplotlib
+- textattack
 
 <details>
   <summary>Полный список зависимостей</summary>
@@ -113,7 +133,7 @@ python main.py --lit --model path/to/your/model
 
 ```
 berterpretation/
-│
+├── src/               # Скрипты
 ├── main.py            # Основной скрипт
 ├── README.md          # Документация
 └── requirements.txt   # Зависимости
