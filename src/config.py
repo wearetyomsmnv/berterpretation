@@ -3,32 +3,11 @@ from colorama import init, Fore, Back, Style
 
 init()  # Инициализация colorama для Windows
 
-valid_labels = ["about", "aboutage", "aboutcash", "aboutcity", "aboutfriend", "abouthobby", "aboutlaw", "aboutwork", "discuss", "discusschat", "discussfraud", "discusslaw", "humor", "infotech", "infotechdevelop", "infotechhack", "infotechosint", "infotechphone", "link", "persinfo", "trash", "trashquestion"]
+valid_labels = ["trashquestion"]
 
 
 color_map = {
-    'humor': Fore.CYAN,
-    'persinfo': Fore.YELLOW,
-    'about': Fore.GREEN,
-    'aboutage': Fore.LIGHTGREEN_EX,
-    'aboutcash': Fore.LIGHTBLUE_EX,
-    'aboutcity': Fore.LIGHTCYAN_EX,
-    'aboutfriend': Fore.LIGHTYELLOW_EX,
-    'abouthobby': Fore.LIGHTMAGENTA_EX,
-    'aboutlaw': Fore.LIGHTRED_EX,
-    'aboutwork': Fore.LIGHTWHITE_EX,
-    'discuss': Fore.MAGENTA,
-    'discusschat': Fore.LIGHTMAGENTA_EX,
-    'discussfraud': Fore.RED,
-    'discusslaw': Fore.LIGHTRED_EX,
-    'infotech': Fore.BLUE,
-    'infotechdevelop': Fore.LIGHTBLUE_EX,
-    'infotechhack': Fore.CYAN,
-    'infotechosint': Fore.LIGHTCYAN_EX,
-    'infotechphone': Fore.BLUE,
-    'link': Fore.WHITE,
-    'trash': Fore.RED,
-    'trashquestion': Fore.LIGHTRED_EX
+    'aalala': Fore.CYAN,
 }
 
 
