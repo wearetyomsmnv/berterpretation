@@ -16,6 +16,7 @@ def main():
     args = parser.parse_args()
 
     device = torch.device(args.device)
+    print()
     print(f"Используется устройство: {device}")
 
     tokenizer, model = load_model(args.model)

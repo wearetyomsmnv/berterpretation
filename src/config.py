@@ -3,11 +3,32 @@ from colorama import init, Fore, Back, Style
 
 init()  # Инициализация colorama для Windows
 
-valid_labels = ["trashquestion"]
+valid_labels = ["about", "aboutage", "aboutcash", "aboutcity", "aboutfriend", "abouthobby", "aboutlaw", "aboutwork", "discuss", "discusschat", "discussfraud", "discusslaw", "humor", "infotech", "infotechdevelop", "infotechhack", "infotechosint", "infotechphone", "link", "persinfo", "trash", "trashquestion"]
 
 
 color_map = {
-    'aalala': Fore.CYAN,
+    'humor': Fore.CYAN,
+    'persinfo': Fore.YELLOW,
+    'about': Fore.GREEN,
+    'aboutage': Fore.LIGHTGREEN_EX,
+    'aboutcash': Fore.LIGHTBLUE_EX,
+    'aboutcity': Fore.LIGHTCYAN_EX,
+    'aboutfriend': Fore.LIGHTYELLOW_EX,
+    'abouthobby': Fore.LIGHTMAGENTA_EX,
+    'aboutlaw': Fore.LIGHTRED_EX,
+    'aboutwork': Fore.LIGHTWHITE_EX,
+    'discuss': Fore.MAGENTA,
+    'discusschat': Fore.LIGHTMAGENTA_EX,
+    'discussfraud': Fore.RED,
+    'discusslaw': Fore.LIGHTRED_EX,
+    'infotech': Fore.BLUE,
+    'infotechdevelop': Fore.LIGHTBLUE_EX,
+    'infotechhack': Fore.CYAN,
+    'infotechosint': Fore.LIGHTCYAN_EX,
+    'infotechphone': Fore.BLUE,
+    'link': Fore.WHITE,
+    'trash': Fore.RED,
+    'trashquestion': Fore.LIGHTRED_EX
 }
 
 
@@ -21,6 +42,7 @@ except ImportError:
     print("WARNING: LIT (Language Interpretability Tool) не может быть импортирован. Функциональность LIT будет отключена.")
     LIT_AVAILABLE = False
 
+print()
 def print_banner():
     banner_text = "berterpretation"
     
@@ -54,6 +76,9 @@ def print_banner():
     print(Fore.YELLOW + '║ ' + Fore.RESET + ' ' * ((width - len(signature)) // 2) + Fore.GREEN + signature + Fore.RESET + ' ' * ((width - len(signature) + 1) // 2) + Fore.YELLOW + ' ║' + Fore.RESET)
     
     print(bottom_border)
+
+print()
+print()
 
 def get_color(label):
     return color_map.get(label, Fore.WHITE)

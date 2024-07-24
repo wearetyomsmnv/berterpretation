@@ -62,7 +62,7 @@ def predict_labels(message, tokenizer, model, device):
                                                n_steps=20,
                                                return_convergence_delta=True)
             
-            print(f"[DEBUG] Convergence delta для метки {label}: {delta}")
+            #print(f"[DEBUG] Convergence delta для метки {label}: {delta}")
             
             token_importance = attributions.sum(dim=-1).squeeze(0)
             top_indices = token_importance.argsort(descending=True)[:5]
@@ -77,7 +77,7 @@ def predict_labels(message, tokenizer, model, device):
     print(f"Скорость обработки: {1/inference_time:.2f} сообщений в секунду")
     
     process = psutil.Process(os.getpid())
-    print(f"[DEBUG] Использование памяти: {process.memory_info().rss / 1024 / 1024:.2f} MB")
+    #print(f"[DEBUG] Использование памяти: {process.memory_info().rss / 1024 / 1024:.2f} MB")
     
     if torch.cuda.is_available():
         print(f"[DEBUG] Использование CUDA памяти: {torch.cuda.memory_allocated() / 1024 / 1024:.2f} MB")

@@ -1,6 +1,5 @@
 from transformers import BertTokenizer, BertForSequenceClassification
 import time
-import torch
 from src.config import valid_labels
 
 def load_model(model_path):

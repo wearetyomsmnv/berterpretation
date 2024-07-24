@@ -25,7 +25,7 @@ class CustomModelWrapper(ModelWrapper):
         self.device = next(model.parameters()).device
 
     def __call__(self, text_input_list):
-        print(f"Input received: {text_input_list}")  # Debug print
+        #print(f"Input received: {text_input_list}")  # Debug print
         if isinstance(text_input_list, str):
             text_input_list = [text_input_list]
         elif isinstance(text_input_list, tuple):
@@ -33,26 +33,26 @@ class CustomModelWrapper(ModelWrapper):
         elif not isinstance(text_input_list, list):
             raise ValueError("Input must be a string, a list of strings, or a tuple")
         
-        print(f"Processed input: {text_input_list}")  # Debug print
+        #print(f"Processed input: {text_input_list}")  # Debug print
         inputs = self.tokenizer(text_input_list, return_tensors="pt", padding=True, truncation=True)
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
-        print(f"Tokenized input: {inputs}")  # Debug print
+        #print(f"Tokenized input: {inputs}")  # Debug print
         
         with torch.no_grad():
             outputs = self.model(**inputs)
         
         logits = outputs.logits.cpu().numpy()
-        print(f"Model output shape: {logits.shape}")
-        print(f"Model output: {logits}")
+        #print(f"Model output shape: {logits.shape}")
+        #print(f"Model output: {logits}")
         return logits
 
     def get_grad(self, text_input):
-        print(f"get_grad input: {text_input}")  # Debug print
+        #print(f"get_grad input: {text_input}")  # Debug print
         if isinstance(text_input, str):
             text_input = [text_input]
         inputs = self.tokenizer(text_input, return_tensors="pt", padding=True, truncation=True)
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
-        print(f"get_grad tokenized input: {inputs}")  # Debug print
+        #print(f"get_grad tokenized input: {inputs}")  # Debug print
         
         self.model.zero_grad()
         outputs = self.model(**inputs)
@@ -63,8 +63,8 @@ class CustomModelWrapper(ModelWrapper):
         loss.backward()
         
         grad = inputs['input_ids'].grad.cpu().numpy()
-        print(f"get_grad output shape: {grad.shape}")  # Debug print
-        print(f"get_grad output: {grad}")  # Debug print
+        #print(f"get_grad output shape: {grad.shape}")  # Debug print
+        #print(f"get_grad output: {grad}")  # Debug print
         return grad
 
 def create_custom_attack(model_wrapper):
@@ -89,7 +89,7 @@ def perform_textattack_checks(model, tokenizer, device):
         test_input = "This is a test sentence."
         print(f"Тестовый ввод: {test_input}")
         test_output = model_wrapper(test_input)
-        print(f"Тестовый вывод model_wrapper: {test_output}")
+        #print(f"Тестовый вывод model_wrapper: {test_output}")
         
         dataset = Dataset([
             (item['text'], label) for item, label in [
@@ -97,7 +97,12 @@ def perform_textattack_checks(model, tokenizer, device):
                 ({"text": "I absolutely hate this item, it's terrible."}, 0),
                 ({"text": "The movie was okay, nothing special."}, 1),
                 ({"text": "I can't recommend this enough, it's amazing!"}, 1),
-                ({"text": "This is the worst experience I've ever had."}, 0)
+                ({"text": "This is the worst experience I've ever had."}, 0),
+                ({"text": "Эта ситуация неподвластна нам."}, 1),
+                ({"text": "Земля круглая - мир квадратный."}, 0),
+                ({"text": "Окей, этот фильм - хорош."}, 1),
+                ({"text": "Мне нравится это звучание, однако я не могу сейчас послушать"}, 1),
+                ({"text": "Дорога."}, 0)
             ]
         ])
 
@@ -105,10 +110,10 @@ def perform_textattack_checks(model, tokenizer, device):
         for text, label in dataset:
             print(f"Текст: {text}")
             print(f"Метка: {label}")
-            print(f"Тип текста: {type(text)}")
+            #print(f"Тип текста: {type(text)}")
             try:
                 output = model_wrapper(text['text'])
-                print(f"Вывод модели: {output}")
+                #print(f"Вывод модели: {output}")
             except Exception as e:
                 print(f"Ошибка при обработке текста: {e}")
             print()
@@ -129,13 +134,15 @@ def perform_textattack_checks(model, tokenizer, device):
                     results.append(result)
 
                 success_rate = sum(1 for r in results if isinstance(r, SuccessfulAttackResult)) / len(results)
+                print()
                 print(f"Успешность атаки {attack_name}: {success_rate:.2f}")
+                print()
                 if success_rate > 0.5:
                     print(f"ПРЕДУПРЕЖДЕНИЕ: Модель уязвима к атаке {attack_name}")
             except Exception as e:
                 print(f"Ошибка при выполнении атаки {attack_name}: {e}")
                 import traceback
-                traceback.print_exc()
+                #traceback.print_exc()
 
         # Пользовательская атака с ограничениями
         try:
@@ -162,6 +169,86 @@ def perform_textattack_checks(model, tokenizer, device):
         import traceback
         traceback.print_exc()
 
+def get_model_architecture_info(model):
+    print("Получение информации об архитектуре модели...")
+    
+    try:
+        total_params = sum(p.numel() for p in model.parameters())
+        trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        
+        print(f"Общее количество параметров: {total_params}")
+        print(f"Количество обучаемых параметров: {trainable_params}")
+        
+        print()
+        print("\nСтруктура модели:")
+        print()
+        print(model)
+        
+        print()
+        print("\nРазмеры параметров по слоям:")
+        print()
+        for name, param in model.named_parameters():
+            if param.requires_grad:
+                print(f"{name}: {param.size()}")
+        
+        # Проверка на наличие специфических слоев или структур
+        has_attention = any('attention' in name for name, _ in model.named_modules())
+        has_lstm = any('lstm' in name.lower() for name, _ in model.named_modules())
+        has_gru = any('gru' in name.lower() for name, _ in model.named_modules())
+        
+        print("\nСпецифические архитектурные особенности:")
+        print("_____________________________________")
+        print(f"Использует механизм внимания: {'Да' if has_attention else 'Нет'}")
+        print(f"Содержит LSTM слои: {'Да' if has_lstm else 'Нет'}")
+        print(f"Содержит GRU слои: {'Да' if has_gru else 'Нет'}")
+        
+    except Exception as e:
+        print(f"Ошибка при получении информации об архитектуре: {e}")
+        import traceback
+        traceback.print_exc()
+
+def check_architectural_vulnerabilities(model):
+    print("Проверка архитектурных уязвимостей...")
+    
+    try:
+        # Проверка на отсутствие dropout
+        has_dropout = any(isinstance(module, torch.nn.Dropout) for module in model.modules())
+        if not has_dropout:
+            print("ПРЕДУПРЕЖДЕНИЕ: В модели отсутствуют слои Dropout, что может привести к переобучению")
+        
+        # Проверка на отсутствие нормализации
+        has_normalization = any(isinstance(module, (torch.nn.BatchNorm1d, torch.nn.BatchNorm2d, torch.nn.LayerNorm)) for module in model.modules())
+        if not has_normalization:
+            print("ПРЕДУПРЕЖДЕНИЕ: В модели отсутствуют слои нормализации, что может затруднить обучение")
+        
+        # Проверка на слишком глубокую архитектуру
+        depth = len(list(model.modules()))
+        if depth > 100:
+            print(f"ПРЕДУПРЕЖДЕНИЕ: Модель имеет большую глубину ({depth} слоев), что может привести к проблеме исчезающего градиента")
+        
+        # Проверка на использование активаций, подверженных проблеме исчезающего градиента
+        has_sigmoid_or_tanh = any(isinstance(module, (torch.nn.Sigmoid, torch.nn.Tanh)) for module in model.modules())
+        if has_sigmoid_or_tanh:
+            print("ПРЕДУПРЕЖДЕНИЕ: Модель использует Sigmoid или Tanh активации, которые могут привести к проблеме исчезающего градиента")
+        
+        # Проверка на отсутствие регуляризации весов
+        has_weight_decay = any(hasattr(param, 'weight_decay') and param.weight_decay > 0 for param in model.parameters())
+    
+        if not has_weight_decay:
+            print("ПРЕДУПРЕЖДЕНИЕ: В модели не используется регуляризация весов (weight decay), что может привести к переобучению")
+        
+        # Проверка на несбалансированность архитектуры (пример: слишком большая разница в размерах слоев)
+        layer_sizes = [module.out_features for module in model.modules() if isinstance(module, torch.nn.Linear)]
+        if len(layer_sizes) > 1:
+            max_size_ratio = max(layer_sizes) / min(layer_sizes)
+            if max_size_ratio > 10:
+                print(f"ПРЕДУПРЕЖДЕНИЕ: Обнаружена значительная несбалансированность в размерах слоев (соотношение {max_size_ratio:.2f}:1)")
+        
+    except Exception as e:
+        print(f"Ошибка при проверке архитектурных уязвимостей: {e}")
+        import traceback
+        traceback.print_exc()
+
 def check_robustness_to_small_changes(model_wrapper, dataset):
     small_changes = [
         (".", ""),
@@ -169,6 +256,15 @@ def check_robustness_to_small_changes(model_wrapper, dataset):
         ("!", "?"),
         ("a", "@"),
         ("o", "0"),
+        ("i", "l"),
+        ("l", "1"),
+        ("н", "H"),
+        ("А", "A"),
+        ("с", "C"),
+        ("Р", "P"),
+        ("З", "3"),
+        ("В", "B"),
+        ("Т", "T"),
     ]
 
     for original, label in dataset:
@@ -199,8 +295,8 @@ def check_adversarial_robustness(model, tokenizer, device, sentence, epsilon=0.0
         original_embeddings = model.bert.embeddings.word_embeddings(original_input['input_ids'])
         
         # Вывод информации о типах данных и размерах
-        print(f"[DEBUG] Тип input_ids: {original_input['input_ids'].dtype}")
-        print(f"[DEBUG] Размер эмбеддингов: {original_embeddings.shape}")
+        #print(f"[DEBUG] Тип input_ids: {original_input['input_ids'].dtype}")
+        #print(f"[DEBUG] Размер эмбеддингов: {original_embeddings.shape}")
         
         # Получение оригинального выхода модели
         with torch.no_grad():
@@ -224,8 +320,8 @@ def check_adversarial_robustness(model, tokenizer, device, sentence, epsilon=0.0
             print("Модель демонстрирует устойчивость к небольшим возмущениям")
         
         # Дополнительная информация для отладки
-        print(f"[DEBUG] Максимальное значение в оригинальном выходе: {original_output.max().item()}")
-        print(f"[DEBUG] Максимальное значение в возмущенном выходе: {perturbed_output.max().item()}")
+        #print(f"[DEBUG] Максимальное значение в оригинальном выходе: {original_output.max().item()}")
+        #print(f"[DEBUG] Максимальное значение в возмущенном выходе: {perturbed_output.max().item()}")
         
     except Exception as e:
         print(f"Ошибка при проверке устойчивости к состязательным примерам: {e}")
@@ -279,7 +375,7 @@ def check_security(model, tokenizer, device):
         traceback.print_exc()
     
     try:
-        check_information_leakage(model, tokenizer, device, ["password", "credit_card", "secret"])
+        check_information_leakage(model, tokenizer, device, ["password", "credit_card", "secret","фамилия","имя","отчество"])
     except Exception as e:
         print(f"Ошибка при проверке утечки информации: {e}")
         import traceback
@@ -300,6 +396,20 @@ def check_security(model, tokenizer, device):
         check_overfitting(model, tokenizer, device, test_sentences)
     except Exception as e:
         print(f"Ошибка при проверке переобучения: {e}")
+        import traceback
+        traceback.print_exc()
+    
+    try:
+        get_model_architecture_info(model)
+    except Exception as e:
+        print(f"Ошибка при получении информации об архитектуре модели: {e}")
+        import traceback
+        traceback.print_exc()
+    
+    try:
+        check_architectural_vulnerabilities(model)
+    except Exception as e:
+        print(f"Ошибка при проверке архитектурных уязвимостей: {e}")
         import traceback
         traceback.print_exc()
     

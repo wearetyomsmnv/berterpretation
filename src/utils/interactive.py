@@ -40,7 +40,9 @@ def interactive_mode(tokenizer, model, device):
             colored_labels = get_colored_labels(predicted_labels, important_tokens)
             highlighted_message = highlight_words(message, important_tokens)
             print(f"Сообщение: {highlighted_message}")
+            print()
             print(f"Предсказанные метки: {' '.join(colored_labels)}")
+            print()
             print("Вероятности всех меток:")
             for label, prob in zip(valid_labels, all_predictions):
                 print(f"  {get_color(label)}{label}: {prob:.2%}{ColoramaStyle.RESET_ALL}")
@@ -60,8 +62,9 @@ def interactive_mode(tokenizer, model, device):
             # Добавьте больше тестовых предложений с их правильными метками
             }
             check_overfitting(model, tokenizer, device, test_sentences)
-            
-            print("\n[DEBUG] Статистика предсказаний:")
+            print()
+            print("\n Статистика предсказаний:")
+            print()
             print(f"  Количество предсказанных меток: {len(predicted_labels)}")
             print(f"  Средняя вероятность предсказанных меток: {numpy.mean([info['score'] for info in important_tokens.values()]):.2%}")
             print(f"  Максимальная вероятность: {numpy.max(all_predictions):.2%}")
